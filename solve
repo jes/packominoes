@@ -1,0 +1,175 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use List::Util qw(max);
+
+my $usage = "usage: solve PIECESFILE AREAFILE\n";
+my $piecesfile = shift or die $usage;
+my $areafile = shift or die $usage;
+
+my $pieces = read_pieces($piecesfile);
+my $area = read_area($areafile);
+
+solve($pieces, $area);
+die "no solution";
+
+sub place_piece {
+    my ($piece, $grid, $place_x, $place_y, $place_ch) = @_;
+
+    $place_ch //= '#';
+
+    my ($w,$h) = (scalar(@{ $piece->[0] }), scalar(@$piece));
+
+    for my $y (0..$h-1) {
+        for my $x (0..$w-1) {
+            next if $piece->[$y][$x] ne '#';
+            $grid->[$place_y+$y][$place_x+$x] = $place_ch;
+        }
+    }
+}
+
+sub remove_piece {
+    my ($piece, $grid, $place_x, $place_y) = @_;
+    place_piece($piece, $grid, $place_x, $place_y, ' ');
+}
+
+sub can_place {
+    my ($piece, $grid, $place_x, $place_y) = @_;
+    
+    my ($w,$h) = (scalar(@{ $piece->[0] }), scalar(@$piece));
+    my ($gridw,$gridh) = (scalar(@{ $grid->[0] }), scalar(@$grid));
+
+    for my $y (0..$h-1) {
+        for my $x (0..$w-1) {
+            next if $piece->[$y][$x] ne '#';
+            return 0 if $place_y+$y < 0 || $place_y+$y > $gridh-1;
+            return 0 if $place_x+$x < 0 || $place_x+$x > $gridw-1;
+            return 0 if $grid->[$place_y+$y][$place_x+$x] ne ' ';
+        }
+    }
+
+    return 1;
+}
+
+sub solve {
+    my ($pieces, $area) = @_;
+
+    my ($w,$h) = (scalar(@{ $area->[0] }), scalar(@$area));
+
+    my %explored;
+
+    my $dfs;
+    $dfs = sub {
+        my ($i) = @_;
+
+        if ($i >= @$pieces) {
+            print colourise(strgrid($area));
+            #exit 0;
+            return;
+        }
+
+        my $p = $pieces->[$i];
+        for my $o (0..@$p-1) {
+            my $piece = $p->[$o];
+            for my $y (0..$h-1) {
+                for my $x (0..$w-1) {
+                    next if !can_place($piece, $area, $x, $y);
+                    place_piece($piece, $area, $x, $y, ($i%6)+1);
+
+                    my $str = strgrid($area);
+                    $str =~ s/\d/#/g;
+                    %explored = () if keys %explored > 100000;
+                    $dfs->($i+1) if !$explored{$str}++;
+
+                    remove_piece($piece, $area, $x, $y);
+                }
+            }
+        }
+    };
+
+    $dfs->(0);
+}
+
+sub strgrid {
+    my ($grid) = @_;
+
+    my ($w,$h) = (scalar(@{ $grid->[0] }), scalar(@$grid));
+    return join("\n", (map { join("", @$_) } @$grid), "\n");
+}
+
+sub colourise {
+    my ($str) = @_;
+
+    return $str if ! -t STDOUT;
+
+    my $out = '';
+    for my $c (split //, $str) {
+        if ($c =~ /\d/) {
+            $out .= "\x1b[4${c}m$c\x1b[0m";
+        } else {
+            $out .= $c;
+        }
+    }
+
+    return $out;
+}
+
+sub rot90 {
+    my ($piece) = @_;
+    my ($w,$h) = (scalar(@{ $piece->[0] }), scalar(@$piece));
+    my @newpiece = ()x$w;
+    for my $y (0..$h-1) {
+        for my $x (0..$w-1) {
+            push @{ $newpiece[$w-1-$x] }, $piece->[$y][$x];
+        }
+    }
+    return \@newpiece;
+}
+
+sub rotations {
+    my ($piece) = @_;
+    my @r = ($piece);
+    push @r, rot90($r[$_-1]) for (1..3);
+    return @r;
+}
+
+sub read_pieces {
+    my ($file) = @_;
+
+    open(my $fh, '<', $file)
+        or die "can't read $file: $!";
+    my $s = join('', <$fh>);
+    close $fh;
+
+    my @strs = split /\n\n/, $s;
+
+    my @pieces;
+
+    for my $str (@strs) {
+        my @lines = split /\n/, $str;
+
+        my $w = max map { length } @lines;
+
+        push @pieces, [map { [split //, $_.(" "x($w-length($_)))] } @lines];
+    }
+
+    return [map { [rotations($_), rotations([reverse @$_])] } @pieces];
+}
+
+sub read_area {
+    my ($file) = @_;
+
+    open(my $fh, '<', $file)
+        or die "can't read $file: $!";
+    my $str = join('', <$fh>);
+    close $fh;
+
+    my @lines = split /\n/, $str;
+
+    my $w = max map { length } @lines;
+    my $h = @lines;
+
+    return [[("#")x($w+2)], (map { [split //, "#".$_.("#"x($w-length($_)+1))] } @lines), [("#")x($w+2)]];
+}

@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my %pentomino = (
+    f => " ##\n##\n #\n",
+    i => "#####\n",
+    l => "####\n#\n",
+    n => "##\n ###\n",
+    p => "##\n###\n",
+    t => "#\n###\n#\n",
+    u => "# #\n###\n",
+    v => "#\n#\n###\n",
+    w => "  #\n ##\n##\n",
+    x => " #\n###\n #\n",
+    y => "####\n #\n",
+    z => "#\n###\n  #\n",
+);
+
+die "usage: pentos LETTERS\n" if !@ARGV;
+
+my @out;
+
+for my $str (@ARGV) {
+    for my $ch (split //, $str) {
+        $ch = lc $ch;
+        if (exists $pentomino{$ch}) {
+            push @out, $pentomino{$ch};
+        } else {
+            die "unknown pentomino: $ch";
+        }
+    }
+}
+
+print join("\n", @out);

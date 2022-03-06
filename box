@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my $usage = "usage: box W H\n";
+my $w = shift or die $usage;
+my $h = shift or die $usage;
+
+print "#"x($w+2) . "\n";
+print "".("#".(" "x$w)."#\n")x$h;
+print "#"x($w+2) . "\n";

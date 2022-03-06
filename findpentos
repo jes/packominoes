@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my $usage = "usage: findpentos N GOODAREA BADAREA\nfind sets of N pentos that will fit in GOODAREA but not in BADAREA\n";
+my $N = shift or die $usage;
+my $goodarea = shift or die $usage;
+my $badarea = shift or die $usage;
+
+my @pentos = split //, 'filnptuvwxyz';
+
+my @answers;
+
+dfs(0, '', 0);
+print "$_\n" for @answers;
+
+sub dfs {
+    my ($i, $pentos, $startn) = @_;
+
+    if ($i >= $N) {
+        print "$pentos\n";
+        if (ok($pentos)) {
+            print "$pentos - GOOD\n";
+            push @answers, $pentos;
+        }
+        return;
+    }
+
+    for my $n ($startn..$#pentos) {
+        dfs($i+1, $pentos.$pentos[$n], $n);
+    }
+}
+
+sub ok {
+    my ($pentos) = @_;
+
+    return solve($pentos, $goodarea) && !solve($pentos, $badarea);
+}
+
+sub solve {
+    my ($pentos, $areafile) = @_;
+
+    my $rc = system("bash -c './solve <(./pentos $pentos) $areafile' 2> /dev/null");
+    return $rc==0;
+}
