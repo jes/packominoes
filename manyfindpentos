@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+my $N = 5;
+
+while (<>) {
+    chomp;
+    die "???" if !/([0-9.]+),([0-9.]+)/;
+    my ($w,$h) = (int($1),int($2));
+    system("./box $w $h > box.mfp");
+
+    my $area = '';
+
+    while (my $line = <>) {
+        chomp $line;
+        last if $line eq '';
+        $area .= "$line\n";
+    }
+
+    open(my $fh, '>', 'area.mfp')
+        or die "$!";
+    print $fh $area;
+    close $fh;
+
+    system("./findpentos $N area.mfp box.mfp");
+}

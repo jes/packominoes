@@ -90,7 +90,7 @@ sub solve {
 
                     my $str = strgrid($area);
                     $str =~ s/\d/#/g;
-                    %explored = () if keys %explored > 100000;
+                    %explored = () if keys %explored > 1000000;
                     $dfs->($i+1) if !$explored{$str}++;
 
                     remove_piece($piece, $area, $x, $y);

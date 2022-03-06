@@ -5,29 +5,40 @@ use warnings;
 
 use List::Util qw(min max);
 
+$| = 1;
+
 my $hstep = 2;
 my $vstep = 1;
-my $mincells = 20;
+my $mincells = 30;
+my $maxoutercells = 35;
 my $clearance = 0.2; # a 4x6 outer-box is considered to be 4.2x6.2 for the purposes of fitting the inner boxes?
-my $minw = 4;
-my $minh = 4;
+my $minw = 7.88;
+my $maxw = 7.9;
+my $minh = 5.88;
+my $maxh = 6;
 
 my %seen;
 
-my $stepsize = 0.5;
+my $stepsize = 0.11; # 0.44
+for (my $hstep = 0.5; $hstep < 5; $hstep += $stepsize) {
+for (my $vstep = 0.5; $vstep < $hstep; $vstep += $stepsize) {
 for (my $tlx = 0; $tlx < 10; $tlx += $stepsize) {
     for (my $tly = 0; $tly < 10; $tly += $stepsize) {
-        for (my $w = $minw; $w < $mincells; $w += $stepsize) {
-            for (my $h = max($mincells/$w,$minh); $h < $mincells; $h += $stepsize) {
+        for (my $w = $minw; $w <= $maxw; $w += $stepsize) {
+            for (my $h = max($mincells/$w,$minh); $h <= $maxh; $h += $stepsize) {
+                last if int($w)*int($h) > $maxoutercells;
                 my $skewedbox = simplify(skewed($tlx,$tly,$w-$clearance,$h-$clearance,$hstep,$vstep));
                 my $cells =()= $skewedbox =~ / /g;
                 if ($cells >= $mincells) {
-                    print "($w,$h: $cells)\n$skewedbox\n\n" if !$seen{$skewedbox}++ && $cells==$mincells;
+                    print "$w,$h\n$skewedbox\n" if !$seen{$skewedbox}++ && $cells==$mincells;
+                    $seen{transpose($skewedbox)}++;
                     last;
                 }
             }
         }
     }
+}
+}
 }
 
 sub skewed {
@@ -106,6 +117,15 @@ sub simplify {
     # delete columns that are all hashes
     $str = transpose($str);
     $str =~ s/^#*\n//mg;
+    $str = transpose($str);
+
+    # add top and bottom line
+    my @lines = split /\n/, $str;
+    my $w = length($lines[0]);
+    my $h = @lines;
+    $str = ("#"x$w)."\n$str".("#"x$w)."\n";
+    $str = transpose($str);
+    $str = ("#"x($h+2))."\n$str".("#"x($h+2))."\n";
     $str = transpose($str);
 
     return $str;

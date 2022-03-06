@@ -28,7 +28,7 @@ sub dfs {
     }
 
     for my $n ($startn..$#pentos) {
-        dfs($i+1, $pentos.$pentos[$n], $n);
+        dfs($i+1, $pentos.$pentos[$n], $n+1);
     }
 }
 
