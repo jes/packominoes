@@ -4,8 +4,17 @@ use strict;
 use warnings;
 
 use List::Util qw(max);
+use Getopt::Long;
 
 my $usage = "usage: solve PIECESFILE AREAFILE\n";
+
+my $show_all_solutions = 0;
+my $nsolutions;
+
+GetOptions(
+    'all' => \$show_all_solutions,
+) or die $usage;
+
 my $piecesfile = shift or die $usage;
 my $areafile = shift or die $usage;
 
@@ -13,7 +22,7 @@ my $pieces = read_pieces($piecesfile);
 my $area = read_area($areafile);
 
 solve($pieces, $area);
-die "no solution";
+die "no solution" if $nsolutions == 0;
 
 sub place_piece {
     my ($piece, $grid, $place_x, $place_y, $place_ch) = @_;
@@ -66,7 +75,8 @@ sub solve {
 
         if ($i >= @$pieces) {
             print colourise(strgrid($area));
-            #exit 0;
+            exit 0 unless $show_all_solutions;
+            $nsolutions++;
             return;
         }
 
@@ -89,6 +99,7 @@ sub solve {
         }
     };
 
+    $nsolutions = 0;
     $dfs->(0);
 }
 
