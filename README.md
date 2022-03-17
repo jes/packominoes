@@ -1,8 +1,8 @@
 # packominoes
 
-This project searches for 2d pentomino packing puzzles along the lines of Four Fit by Stewart Coffin:
-
 ***SPOILERS: If you want to solve Six Fit, download it from prusaprinters.org and don't read the rest of this README until after you've solved it.***
+
+This project searches for 2d pentomino packing puzzles along the lines of Four Fit by Stewart Coffin:
 
 ![](img/fourfit.jpg)
 
