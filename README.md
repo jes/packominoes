@@ -66,6 +66,8 @@ Write the ASCII art descriptions of the 2 playing fields into 2 files, and run
 You're looking for outputs where the skewed playing field has a solution but the square one does not. These sets of
 pentominoes will be called out as "GOOD" in the output, and a full list will be output at the end.
 
+![](img/fintxy.png)
+
 ## Contact
 
 This project is by James Stanley. You can email me at james@incoherency.co.uk or read my blog at https://incoherency.co.uk/
