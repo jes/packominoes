@@ -2,14 +2,16 @@
 
 This project searches for 2d pentomino packing puzzles along the lines of Four Fit by Stewart Coffin:
 
-[](img/fourfit.jpg)
+***SPOILERS: If you want to solve Six Fit, download it from prusaprinters.org and don't read the rest of this README until after you've solved it.***
+
+![](img/fourfit.jpg)
 
 The key to this puzzle is that there is a way to fit the pieces inside the box, but there is *not* a
 way to do so in which the edges of the pieces are aligned with the edges of the box.
 
 This project was used to design (discover?) the "Six Fit" puzzle:
 
-[](img/sixfit.jpg)
+![](img/sixfit.jpg)
 
 The programs in this repository are not very efficient. In particular, instead of exhaustively searching over
 the set of all pentomino sets, `findpentos` should solve the grid with the assumption that it has all pentominoes
@@ -54,7 +56,7 @@ same set of pieces that can fit in an 8x4 rectangle:
 
 Here's a sketch showing how the bounding box fits the playing field:
 
-[](img/freecad.png)
+![](img/freecad.png)
 
 ## 2. Find pentominoes
 
